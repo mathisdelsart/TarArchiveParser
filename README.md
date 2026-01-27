@@ -4,7 +4,7 @@
 
 ![C](https://img.shields.io/badge/C-99-blue.svg)
 ![Make](https://img.shields.io/badge/Make-Build-orange.svg)
-![Grade](https://img.shields.io/badge/Grade-20%2F20-brightgreen.svg)
+![License](https://img.shields.io/badge/License-Academic-yellow.svg)
 
 A lightweight TAR archive parser in C featuring archive validation, file operations, and symbolic link resolution. Built from scratch with POSIX TAR format compliance for efficient archive manipulation and metadata extraction.
 
@@ -191,15 +191,6 @@ typedef struct {
 } tar_header_t;
 ```
 
-## Academic Context
-
-This project was developed as part of the **LINFO1252 - Systèmes informatiques** course at UCLouvain.
-
-**Author:**
-- Mathis Delsart
-- Anthony Guerrero Gurriaran
-
-
 ## Limitations
 
 The current implementation has the following known limitations:
@@ -209,6 +200,14 @@ The current implementation has the following known limitations:
 • macOS BSD tar has different default options than GNU tar
 
 Future versions may address these limitations for broader compatibility.
+
+## Academic Context
+
+This project was developed as part of the **LINFO1252 - Systèmes informatiques** course at UCLouvain.
+
+**Author:**
+- Mathis Delsart
+- Anthony Guerrero Gurriaran
 
 ---
 
