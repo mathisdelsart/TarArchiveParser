@@ -1,61 +1,215 @@
-# Tar Archive Utility in C
+<div align="center">
 
-## Description
+# TAR Archive Parser in C
 
-Welcome to the project repository for the LINFO1252 course at UCLouvain, part of the Civil Engineering program in the field of computer science. This project focuses on implementing a basic Tar archive utility in C, providing functionality for creating, reading, and manipulating Tar archives. The utility includes operations such as checking the validity of an archive, checking for the existence of a file or directory, determining the type of a file (regular file, directory, or symbolic link), listing the contents of a directory within the archive, and reading the contents of a file.
+![C](https://img.shields.io/badge/C-99-blue.svg)
+![Make](https://img.shields.io/badge/Make-Build-orange.svg)
+![Grade](https://img.shields.io/badge/Grade-20%2F20-brightgreen.svg)
 
-### Project Details
-- **Grade:** 20/20.
-- **Course:** LINFO1252, UCLouvain Engineering program, Computer Science track.
+A lightweight TAR archive parser in C featuring archive validation, file operations, and symbolic link resolution. Built from scratch with POSIX TAR format compliance for efficient archive manipulation and metadata extraction.
 
-## Tar Archive Structure
+[About](#about) • [Features](#features) • [Usage](#usage) • [Implementation](#implementation) • [Academic Context](#academic-context)
 
-The Tar archive follows the Tar format standards, with each file entry represented by a Tar header. The utility supports essential Tar header fields such as name, size, type flag, magic, version, and checksum. The project emphasizes multithreaded performance analysis using three classical concurrent programming problems: the Reader-Writer problem, the Dining Philosophers problem, and the Producer-Consumer problem.
+</div>
+
+## About
+
+This project implements a comprehensive TAR archive utility from scratch in C, providing full support for reading, validating, and manipulating POSIX TAR archives. Built as part of the LINFO1252 course at UCLouvain, this parser demonstrates low-level file handling, binary format parsing, and efficient archive traversal algorithms.
+
+### Core Concept
+
+```
+Archive Integrity = validate(headers) + parse(metadata) + resolve(symlinks)
+```
+
+The parser uses header-based validation with checksum verification to ensure archive integrity, supporting essential TAR operations including existence checks, type detection, directory listing, and file content extraction with symbolic link resolution.
 
 ## Features
 
-### 1. Checking Archive Validity
+### Archive Validation System
 
-The function `check_archive` verifies the validity of a Tar archive by inspecting its headers. It ensures that the magic and version fields match the Tar standards and validates the checksum for each header.
+#### `check_archive(tar_fd)`
+• Validates TAR archive integrity
+• Verifies USTAR magic values and version
+• Computes and validates header checksums
+• Returns count of valid headers or error codes
 
-### 2. File and Directory Existence Check
+#### `exists(tar_fd, path)`
+• Checks for file/directory existence in archive
+• Performs exact path matching
+• Efficient linear search through headers
+• Returns boolean existence status
 
-The `exists` function checks if a file or directory exists in the Tar archive. It iterates through the archive's headers and compares the provided path with each entry.
+### File Operations
 
-### 3. Type Checking (File, Directory, Symlink)
+#### `is_file(tar_fd, path)` / `is_dir(tar_fd, path)` / `is_symlink(tar_fd, path)`
+• Type detection using TAR typeflag
+• Differentiates between regular files, directories, and symbolic links
+• POSIX TAR standard compliance
+• Returns boolean type status
 
-The functions `is_file`, `is_dir`, and `is_symlink` determine the type of a specified path within the Tar archive. They leverage type flags in Tar headers to identify regular files, directories, and symbolic links.
+#### `list(tar_fd, path, entries, no_entries)`
+• Lists directory contents non-recursively
+• Supports symbolic link resolution
+• Automatic subdirectory skipping
+• Returns entries array and count
 
-### 4. Listing Directory Contents
+#### `read_file(tar_fd, path, offset, dest, len)`
+• Reads file contents with offset support
+• Automatic symlink resolution
+• Partial read capability
+• Returns remaining bytes count
 
-The `list` function lists the contents of a specified directory within the Tar archive. It supports recursive listing, providing entries and the number of entries found.
+### Technical Specifications
 
-### 5. Reading File Contents
+| Feature | Specification |
+|---------|--------------|
+| Format Support | POSIX TAR (USTAR) |
+| Header Size | 512 bytes |
+| Checksum Algorithm | Sum of all header bytes |
+| Symlink Resolution | Automatic |
+| Archive Validation | Magic + Version + Checksum |
 
-The `read_file` function reads the contents of a specified file within the Tar archive. It supports specifying an offset for partial reads and provides the read data and remaining length.
+## Usage
 
-## Makefile Commands
+### Prerequisites
 
-This project uses a Makefile to streamline compilation, execution, and additional tasks. Here are the main commands:
+• GCC compiler
+• Unix-like environment (Linux, macOS)
+• Make utility
 
-- **`make`**: Uses `make build` and `make run`.
-- **`make build`**: Compiles the project, generating the executable `my_program` and the Tar archive `TAR_archive_test.tar`.
-- **`make run`**: Executes the compiled program (`my_program`).
-- **`make clean`**: Removes generated files and the executable.
-- **`make tar`**: Creates a Tar archive (`TAR_archive_test.tar`) containing all the files in the directory `archive_test`.
-- **`make submit`**: Creates a submission Tar archive (`soumission.tar`) containing source files, headers, and the Makefile.
+### Installation & Execution
 
-## Further Information
+```bash
+# Clone the repository
+git clone https://github.com/mathisdelsart/TarArchiveParser.git
+cd TarArchiveParser
 
-For additional details on function parameters, return values, and specific implementation details, refer to the source code and header files.
-Please note that this version represents a partial implementation that may lack certain features. Notably, the functionality for listing directory contents (`list` function) does not currently support relative paths (e.g., the use of `../`). This limitation may impact the accurate representation of directory structures in certain cases.
+# Build and run
+make all
 
-Contributors are aware of this limitation, and future updates or versions may address these aspects for a more comprehensive solution.
-For detailed information on the current state of the project, refer to the source code and associated documentation.
+# Or step by step
+make build    # Compile only
+make run      # Execute the program
+make clean    # Remove generated files
 
-## Contributions
+# Create TAR archive for testing
+make tar
 
-Contributions, feedback, and suggestions are welcomed. Feel free to share your thoughts and improvements.
+# Create submission archive
+make submit
+```
+
+### Example Output
+
+The program runs a comprehensive test suite validating all TAR operations:
+
+```
+Test check_archive() :
+        Test Passed !
+
+Test exists_test() :
+        Test Passed !
+        Test Passed !
+
+Test is_x() :
+        Test Passed !
+
+Test list() :
+        Test Passed !
+
+Test read_file() :
+        Test Passed !
+```
+
+## Implementation
+
+### Architecture
+
+```
+tar-archive-parser/
+├── src/
+│   ├── lib_tar.c         # Core TAR implementation
+│   ├── helper.c          # Helper utilities
+│   └── tests.c           # Test suite
+├── headers/
+│   ├── lib_tar.h         # Public API
+│   ├── helper.h          # Helper functions
+│   ├── var.h             # Constants and macros
+│   └── tests.h           # Test definitions
+├── archive_test/         # Test archive structure
+├── Makefile              # Build automation
+└── README.md             # This file
+```
+
+### Key Algorithms
+
+#### Archive Validation
+
+1. Reset file descriptor to start
+2. For each header:
+   - Verify USTAR magic ("ustar\0")
+   - Verify version ("00")
+   - Compute checksum (sum of all bytes)
+   - Compare with header checksum
+3. Return header count or error code (-1: magic, -2: version, -3: checksum)
+
+#### Directory Listing
+
+1. Locate directory entry in archive
+2. Resolve symlinks recursively if needed
+3. Scan subsequent entries:
+   - Check if entry belongs to directory
+   - Skip subdirectories automatically
+   - Add entries to result array
+4. Return entries count
+
+#### File Reading with Offset
+
+1. Search for file entry by path
+2. Resolve symlinks if necessary
+3. Seek to content offset
+4. Read requested bytes into buffer
+5. Return remaining bytes count
+
+### TAR Header Structure
+
+```c
+typedef struct {
+    char name[100];      // File name
+    char mode[8];        // File mode
+    char uid[8];         // User ID
+    char gid[8];         // Group ID
+    char size[12];       // File size (octal)
+    char mtime[12];      // Modification time
+    char chksum[8];      // Header checksum
+    char typeflag;       // File type
+    char linkname[100];  // Link target
+    char magic[6];       // "ustar\0"
+    char version[2];     // "00"
+    // ... additional fields
+} tar_header_t;
+```
+
+## Academic Context
+
+This project was developed as part of the **LINFO1252 - Systèmes informatiques** course at UCLouvain.
+
+**Author:**
+- Mathis Delsart
+- Anthony Guerrero Gurriaran
+
+
+## Limitations
+
+The current implementation has the following known limitations:
+
+• The `list()` function does not support relative paths (e.g., `../`)
+• TAR archive must be created with compatible options for tests to pass
+• macOS BSD tar has different default options than GNU tar
+
+Future versions may address these limitations for broader compatibility.
 
 ---
-*This project is a part of the LINFO1252 course at UCLouvain in the Civil Engineering program, focusing on computer science.*
+
+*A hands-on exploration of low-level file I/O and binary format parsing, demonstrating how TAR archives work under the hood. Perfect for understanding the fundamentals of archive manipulation and POSIX compliance in systems programming.*
